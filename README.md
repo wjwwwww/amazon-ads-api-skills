@@ -2,6 +2,22 @@
 
 A collection of [Kiro](https://kiro.dev) skills that help developers migrate from legacy Amazon Ads APIs (SP v3, SB v4) to the Unified API (`/adsApi/v1/`).
 
+## Demo
+
+<!-- 
+  TODO: Replace the URL below with your GitHub-uploaded video link.
+  Steps:
+  1. Go to any GitHub Issue in your repo → click "New Issue"
+  2. Drag & drop docs/demo-api-spec-fallback.mov into the comment box
+  3. Wait for upload — GitHub generates a URL like:
+     https://github.com/user-attachments/assets/a1b2c3d4-e5f6-7890-abcd-1234567890ab
+  4. Copy that URL and replace the placeholder below
+  5. Delete this comment block
+-->
+https://github.com/user-attachments/assets/REPLACE_WITH_YOUR_UPLOAD_URL
+
+> 📹 The agent uses SKILL.md for migration guidance. When it needs more detail (e.g., specific schema fields or enum values), it automatically falls back to the OpenAPI spec JSON files.
+
 ## What Are Skills?
 
 Kiro skills are structured knowledge files (SKILL.md) that teach AI assistants domain-specific expertise. When installed in your workspace, Kiro automatically uses these skills to provide accurate, context-aware guidance for API migration tasks.
@@ -25,6 +41,8 @@ git clone https://github.com/YOUR_USER/amazon-ads-api-skills.git
 cd amazon-ads-api-skills
 ./install.sh /path/to/your/project
 ```
+
+This installs both skills (to `.kiro/skills/`) and the migration agent (to `.kiro/agents/`).
 
 Skills are installed to `/path/to/your/project/.kiro/skills/` and automatically loaded when you run `kiro` in that project directory.
 
@@ -105,6 +123,54 @@ Expected: The agent should explain the Unified API uses `targetType` + `matchTyp
 **Question 3** (API CLI Generation):
 Expected:  The agent should return curl command to create an SP campaign using adsapi/v1 based on API Spec. 
 
+## Agent with API Spec Fallback
+
+This project includes a pre-configured Kiro agent (`.kiro/agents/ads-api-migration-assistant.json`) that provides migration assistance with an intelligent fallback mechanism:
+
+1. **Primary**: The agent uses SKILL.md files for migration guidance (endpoint mappings, field differences, code examples)
+2. **Fallback**: When SKILL.md lacks specific detail (e.g., exact schema fields, enum values, response formats), the agent automatically searches the OpenAPI spec JSON files (`api-specs/*.json`) using grep/read tools
+
+### How It Works
+
+```
+User asks question
+        │
+        ▼
+┌─────────────────┐
+│  Check SKILL.md │ ← Loaded via resources
+│  (primary)      │
+└────────┬────────┘
+         │ Not enough detail?
+         ▼
+┌─────────────────────────────┐
+│  grep api-specs/*.json      │ ← Fallback via tools
+│  (schema, enum, field info) │
+└─────────────────────────────┘
+```
+
+### Spec Files Used by Fallback
+
+| File | Content | Used For |
+|------|---------|----------|
+| `api-specs/unified-api-sp.json` | SP OpenAPI spec (234KB) | SP schema/field details |
+| `api-specs/unified-api-sb.json` | SB OpenAPI spec (360KB) | SB schema/field details |
+| `api-specs/enums-unified-api.json` | Extracted enum mappings | Enum value lookups |
+
+These files are kept up-to-date via `./scripts/sync-api-specs.sh`. The agent always reads the current version.
+
+### Using the Agent
+
+If you run Kiro directly in this project directory, the agent loads automatically. If you install skills to another project via `install.sh`, the agent is also copied.
+
+```bash
+# Option 1: Use directly in this project
+cd amazon-ads-api-skills
+kiro-cli chat
+
+# Option 2: Install to your project (includes agent)
+./install.sh /path/to/your/project
+```
+
 ## API Spec Sync
 
 The migration skills reference the Amazon Ads OpenAPI specifications. Since these specs change frequently, we include a sync tool to detect changes that may affect the skills.
@@ -169,8 +235,11 @@ jobs:
 amazon-ads-api-skills/
 ├── README.md                     ← You are here
 ├── CONTRIBUTING.md               ← How to add/update skills
-├── install.sh                    ← One-command installer
+├── install.sh                    ← One-command installer (skills + agent)
 ├── skills.json                   ← Machine-readable skill manifest
+├── .kiro/
+│   └── agents/
+│       └── ads-api-migration-assistant.json  ← Agent with API Spec Fallback
 ├── skills/
 │   ├── unified-api-migration-guide/
 │   │   └── SKILL.md
@@ -178,15 +247,18 @@ amazon-ads-api-skills/
 │   │   └── SKILL.md
 │   ├── unified-sb-migration/
 │   │   └── SKILL.md
-│   └── amazon-ads-sb-collections/
+│   ├── amazon-ads-sb-collections/
+│   │   └── SKILL.md
+│   └── unified-api-cli-testing/
 │       └── SKILL.md
 ├── api-specs/                    ← Downloaded OpenAPI specs (git-tracked)
 │   ├── unified-api-sp.json
-│   └── unified-api-sb.json
+│   ├── unified-api-sb.json
+│   └── enums-unified-api.json
 ├── scripts/
 │   └── sync-api-specs.sh        ← API spec sync tool
 ├── docs/
-│   └── how-skills-work.md
+│   └── demo-api-spec-fallback.mov
 └── examples/
     └── (usage examples)
 ```

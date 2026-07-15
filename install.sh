@@ -89,6 +89,24 @@ done
 echo ""
 echo -e "${GREEN}Done! Installed $INSTALLED skills to $KIRO_SKILLS_DIR${NC}"
 echo ""
+
+# Install agent configuration
+KIRO_AGENTS_DIR="$TARGET_DIR/.kiro/agents"
+mkdir -p "$KIRO_AGENTS_DIR"
+
+AGENT_SRC="$SCRIPT_DIR/.kiro/agents/ads-api-migration-assistant.json"
+if [[ -f "$AGENT_SRC" ]]; then
+  cp "$AGENT_SRC" "$KIRO_AGENTS_DIR/"
+  echo -e "  ${GREEN}✓${NC} Agent: ads-api-migration-assistant"
+else
+  echo -e "  ${YELLOW}⚠${NC} Agent config not found (skipping)"
+fi
+
+echo ""
 echo "Verify by asking Kiro:"
 echo '  "How do I migrate my SP v3 campaign to the Unified API?"'
+echo ""
+echo "The agent will use SKILL.md content first, and automatically"
+echo "fall back to OpenAPI spec files (api-specs/*.json) when it needs"
+echo "more detail about specific schemas, fields, or enum values."
 echo ""
