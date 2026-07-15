@@ -4,17 +4,7 @@ A collection of [Kiro](https://kiro.dev) skills that help developers migrate fro
 
 ## Demo
 
-<!-- 
-  TODO: Replace the URL below with your GitHub-uploaded video link.
-  Steps:
-  1. Go to any GitHub Issue in your repo → click "New Issue"
-  2. Drag & drop docs/demo-api-spec-fallback.mov into the comment box
-  3. Wait for upload — GitHub generates a URL like:
-     https://github.com/user-attachments/assets/a1b2c3d4-e5f6-7890-abcd-1234567890ab
-  4. Copy that URL and replace the placeholder below
-  5. Delete this comment block
--->
-https://github.com/user-attachments/assets/REPLACE_WITH_YOUR_UPLOAD_URL
+https://github.com/user-attachments/assets/34fb1c60-a76d-410a-a55a-bcb2cbed4679
 
 > 📹 The agent uses SKILL.md for migration guidance. When it needs more detail (e.g., specific schema fields or enum values), it automatically falls back to the OpenAPI spec JSON files.
 
