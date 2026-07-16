@@ -1,6 +1,6 @@
-# Amazon Ads API Migration Skills for Kiro
+# Amazon Ads API Assistance Skills
 
-A collection of [Kiro](https://kiro.dev) skills that help developers migrate from legacy Amazon Ads APIs (SP v3, SB v4) to the Unified API (`/adsApi/v1/`).
+A collection of [Kiro](https://kiro.dev) skills that help developers with Amazon Ads API integration — including migrating from legacy APIs, adopting new ad formats, and generating test commands.
 
 ## Demo
 
@@ -12,12 +12,33 @@ Kiro skills are structured knowledge files (SKILL.md) that teach AI assistants d
 
 ## Available Skills
 
+These skills cover three key aspects of API integration:
+
+### a. Unified API Migration
+
+Help developers migrate from legacy APIs (SP v3, SB v4) to the Unified API (`/adsApi/v1/`).
+
 | Skill | Description | Use When |
 |-------|-------------|----------|
 | `unified-api-migration-guide` | High-level migration assessment and planning | Starting a migration, assessing scope |
 | `unified-sp-migration` | SP v3 → Unified API field-level mapping | Migrating Sponsored Products code |
 | `unified-sb-migration` | SB v4 → Unified API field-level mapping | Migrating Sponsored Brands code |
+
+### b. New Ads API Adoption
+
+Help developers integrate new Amazon Ads API features and ad formats.
+
+| Skill | Description | Use When |
+|-------|-------------|----------|
 | `amazon-ads-sb-collections` | SBC ad format integration guide | Building new SBC campaigns or migrating from Product Collections |
+
+### c. CLI Generation for Testing
+
+Help developers generate and validate API requests.
+
+| Skill | Description | Use When |
+|-------|-------------|----------|
+| `unified-api-cli-testing` | Generate curl commands and test scripts from OpenAPI specs | Testing endpoints, validating payloads |
 
 ## Quick Start
 
@@ -78,7 +99,7 @@ After installation, test with these questions:
 Expected: The agent should list the full endpoint mapping table (campaigns, ad groups, product ads, keywords → targets, negative keywords → targets with negative=true, etc.) and clearly indicate which v3 endpoints do NOT have Unified API equivalents (budget rules, recommendations, etc.)
 
 **Question 2** (targeting type differentiation):
-> "Generate a curl command to create an SP campaign"
+> "Unable to distinguish between different targeting types (e.g., ASIN exact, broad, category, etc.) in ads API V1"
 
 Expected: The agent should explain the Unified API uses `targetType` + `matchType` instead of expression format, and provide the mapping:
 - `targetType: "PRODUCT"` + `matchType: "PRODUCT_EXACT"` = ASIN exact targeting
@@ -86,6 +107,7 @@ Expected: The agent should explain the Unified API uses `targetType` + `matchTyp
 - `targetType: "PRODUCT_CATEGORY"` = Category targeting
 
 **Question 3** (API CLI Generation):
+> "Generate a curl command to create an SP campaign"
 Expected:  The agent should return curl command to create an SP campaign using adsapi/v1 based on API Spec. 
 
 ## API Spec Sync
@@ -119,28 +141,41 @@ The migration skills reference the Amazon Ads OpenAPI specifications. Since thes
 
 ```
 amazon-ads-api-skills/
-├── README.md                     ← You are here
-├── CONTRIBUTING.md               ← How to add/update skills
-├── install.sh                    ← One-command installer
-├── skills.json                   ← Machine-readable skill manifest
-├── skills/
+├── .kiro/
+│   └── agents/
+│       └── ads-api-migration-assistant.json  ← Agent config with API Spec Fallback
+├── skills/                                   ← Skill source files
 │   ├── unified-api-migration-guide/
 │   │   └── SKILL.md
 │   ├── unified-sp-migration/
 │   │   └── SKILL.md
 │   ├── unified-sb-migration/
 │   │   └── SKILL.md
-│   └── amazon-ads-sb-collections/
-│       └── SKILL.md
-├── api-specs/                    ← Downloaded OpenAPI specs (git-tracked)
-│   ├── unified-api-sp.json
-│   └── unified-api-sb.json
+│   ├── amazon-ads-sb-collections/
+│   │   └── SKILL.md
+│   ├── unified-api-cli-testing/
+│   │   └── SKILL.md
+│   └── update-migration-skills/
+│       └── SKILL.md                          ← Maintenance skill for updating skills from spec diffs
+├── api-specs/                                ← OpenAPI specs (source of truth)
+│   ├── unified-api-sp.json                   ← Sponsored Products Unified API
+│   ├── unified-api-sb.json                   ← Sponsored Brands Unified API
+│   ├── enums-unified-api.json                ← Extracted enum value mappings
+│   └── diff/                                 ← Generated diffs after sync
+│       ├── unified-api-sp.changes.md
+│       ├── unified-api-sp.old.json
+│       └── unified-api-sp.new.json
 ├── scripts/
-│   └── sync-api-specs.sh        ← API spec sync tool
+│   ├── sync-api-specs.sh                     ← Download & diff latest specs
+│   ├── extract-enums.sh                      ← Extract enum values from docs
+│   └── fetch-enums-page.py                   ← Helper for enum extraction
 ├── docs/
-│   └── how-skills-work.md
-└── examples/
-    └── (usage examples)
+├── examples/
+├── install.sh                                ← One-command installer (skills + agent)
+├── skills.json                               ← Machine-readable skill manifest
+├── CONTRIBUTING.md
+├── LICENSE
+└── README.md                                 ← You are here
 ```
 
 ## Requirements
