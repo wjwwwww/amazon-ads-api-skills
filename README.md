@@ -2,6 +2,8 @@
 
 A collection of [Kiro](https://kiro.dev) skills that help developers with Amazon Ads API integration — including migrating from legacy APIs, adopting new ad formats, and generating test commands.
 
+Official docs are the reference dictionary; this project distills scattered API specs into actionable, agent-consumable knowledge — covering migration, new feature integration, and test validation — so developers get executable answers instead of reading pages of specs. Note: LLMs can hallucinate; when in doubt, verify against [official documentation](https://advertising.amazon.com/API/docs/en-us/guides/overview) or contact the Ads API Support Center.
+
 ## Demo
 
 https://github.com/user-attachments/assets/34fb1c60-a76d-410a-a55a-bcb2cbed4679
@@ -31,6 +33,7 @@ Help developers integrate new Amazon Ads API features and ad formats.
 | Skill | Description | Use When |
 |-------|-------------|----------|
 | `amazon-ads-sb-collections` | SBC ad format integration guide | Building new SBC campaigns or migrating from Product Collections |
+| `amazon-ads-spglobal` | SP Global Campaigns integration guide | Managing SP campaigns across multiple marketplaces simultaneously |
 
 ### c. CLI Generation for Testing
 
@@ -153,6 +156,8 @@ amazon-ads-api-skills/
 │   │   └── SKILL.md
 │   ├── amazon-ads-sb-collections/
 │   │   └── SKILL.md
+│   ├── amazon-ads-spglobal/
+│   │   └── SKILL.md
 │   ├── unified-api-cli-testing/
 │   │   └── SKILL.md
 │   └── update-migration-skills/
@@ -160,6 +165,7 @@ amazon-ads-api-skills/
 ├── api-specs/                                ← OpenAPI specs (source of truth)
 │   ├── unified-api-sp.json                   ← Sponsored Products Unified API
 │   ├── unified-api-sb.json                   ← Sponsored Brands Unified API
+│   ├── unified-api-spglobal.json             ← SP Global Campaigns API
 │   ├── enums-unified-api.json                ← Extracted enum value mappings
 │   └── diff/                                 ← Generated diffs after sync
 │       ├── unified-api-sp.changes.md

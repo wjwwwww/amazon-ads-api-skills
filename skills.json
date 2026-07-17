@@ -47,6 +47,15 @@
       "dependencies": []
     },
     {
+      "name": "amazon-ads-spglobal",
+      "path": "skills/amazon-ads-spglobal/SKILL.md",
+      "description": "SP Global Campaigns integration guide for managing Sponsored Products across multiple marketplaces simultaneously",
+      "tags": ["integration", "sponsored-products", "global", "multi-marketplace"],
+      "apis": ["Unified API v1"],
+      "specFile": "api-specs/unified-api-spglobal.json",
+      "dependencies": []
+    },
+    {
       "name": "update-migration-skills",
       "path": "skills/update-migration-skills/SKILL.md",
       "description": "Reads API spec diffs from api-specs/diff/ and updates migration SKILL.md files with new endpoints, fields, and enum changes",
@@ -67,6 +76,12 @@
       "url": "https://d1y2lf8k3vrkfu.cloudfront.net/openapi/en-us/dest/AmazonAdsAPISBMerged_prod_3p.json",
       "localPath": "api-specs/unified-api-sb.json",
       "affectsSkills": ["unified-sb-migration", "amazon-ads-sb-collections"]
+    },
+    {
+      "name": "unified-api-spglobal",
+      "url": "https://d1y2lf8k3vrkfu.cloudfront.net/openapi/en-us/dest/AmazonAdsAPISPGLOBALMerged_prod_3p.json",
+      "localPath": "api-specs/unified-api-spglobal.json",
+      "affectsSkills": ["amazon-ads-spglobal"]
     }
   ]
 }
