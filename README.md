@@ -12,14 +12,32 @@ https://github.com/user-attachments/assets/34fb1c60-a76d-410a-a55a-bcb2cbed4679
 
 These skills cover three key aspects of API integration:
 
-| Category | Skill | Use When |
-|----------|-------|----------|
-| **Migration** | `unified-api-migration-guide` | Assessing migration scope from SP v3 / SB v4 |
-| **Migration** | `unified-sp-migration` | Migrating Sponsored Products to Unified API |
-| **Migration** | `unified-sb-migration` | Migrating Sponsored Brands to Unified API |
-| **New API Adoption** | `amazon-ads-sb-collections` | Building SB Collections campaigns |
-| **New API Adoption** | `amazon-ads-spglobal` | Managing SP campaigns across multiple marketplaces |
-| **CLI Testing** | `unified-api-cli-testing` | Generating curl commands and test scripts |
+### a. Unified API Migration
+
+Help developers migrate from legacy APIs (SP v3, SB v4) to the Unified API (`/adsApi/v1/`).
+
+| Skill | Description | Use When |
+|-------|-------------|----------|
+| `unified-api-migration-guide` | High-level migration assessment and planning | Starting a migration, assessing scope |
+| `unified-sp-migration` | SP v3 → Unified API field-level mapping | Migrating Sponsored Products code |
+| `unified-sb-migration` | SB v4 → Unified API field-level mapping | Migrating Sponsored Brands code |
+
+### b. New Ads API Adoption
+
+Help developers integrate new Amazon Ads API features and ad formats.
+
+| Skill | Description | Use When |
+|-------|-------------|----------|
+| `amazon-ads-sb-collections` | SBC ad format integration guide | Building new SBC campaigns or migrating from Product Collections |
+| `amazon-ads-spglobal` | SP Global Campaigns integration guide | Managing SP campaigns across multiple marketplaces simultaneously |
+
+### c. CLI Generation for Testing
+
+Help developers generate and validate API requests.
+
+| Skill | Description | Use When |
+|-------|-------------|----------|
+| `unified-api-cli-testing` | Generate curl commands and test scripts from OpenAPI specs | Testing endpoints, validating payloads |
 
 ## Quick Start
 
