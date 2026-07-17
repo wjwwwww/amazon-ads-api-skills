@@ -54,22 +54,29 @@ Help developers generate and validate API requests.
    kiro-cli --version
    ```
 
-### Install & Use
+### Option 1: Clone and use directly (quickest)
 
 ```bash
-# Clone this repo
 git clone https://github.com/wjwwwww/amazon-ads-api-skills.git
 cd amazon-ads-api-skills
+kiro-cli chat --agent ads-api-migration-assistant
+```
 
-# Install skills + agent into your project
+Everything works out of the box — skills, agent, and API specs are all in place.
+
+### Option 2: Install into your existing project
+
+```bash
+git clone https://github.com/wjwwwww/amazon-ads-api-skills.git
+cd amazon-ads-api-skills
 ./install.sh /path/to/your/project
 
-# Start using
+# Then use in your project
 cd /path/to/your/project
 kiro-cli chat --agent ads-api-migration-assistant
 ```
 
-This installs skills (to `.kiro/skills/`) and the migration agent (to `.kiro/agents/`).
+This copies skills, agent config, and API spec files into your project.
 
 ### Or install a single skill
 
@@ -80,7 +87,7 @@ cp -r skills/unified-sp-migration /path/to/your/project/.kiro/skills/
 
 ### Verify it works
 
-After installation, try these questions:
+After setup, try these questions:
 
 > "I want to migrate from SP v3. Which endpoints have equivalents in adsApi/v1?"
 

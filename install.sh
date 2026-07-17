@@ -102,6 +102,25 @@ else
   echo -e "  ${YELLOW}⚠${NC} Agent config not found (skipping)"
 fi
 
+# Install API spec files (for agent fallback)
+API_SPECS_DST="$TARGET_DIR/api-specs"
+mkdir -p "$API_SPECS_DST"
+
+SPEC_FILES=("unified-api-sp.json" "unified-api-sb.json" "unified-api-spglobal.json" "enums-unified-api.json")
+SPECS_COPIED=0
+for spec in "${SPEC_FILES[@]}"; do
+  if [[ -f "$SCRIPT_DIR/api-specs/$spec" ]]; then
+    cp "$SCRIPT_DIR/api-specs/$spec" "$API_SPECS_DST/"
+    ((SPECS_COPIED++))
+  fi
+done
+
+if [[ $SPECS_COPIED -gt 0 ]]; then
+  echo -e "  ${GREEN}✓${NC} API specs: $SPECS_COPIED files (for agent fallback)"
+else
+  echo -e "  ${YELLOW}⚠${NC} API spec files not found (skipping)"
+fi
+
 echo ""
 echo "Verify by asking Kiro:"
 echo '  "How do I migrate my SP v3 campaign to the Unified API?"'
