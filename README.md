@@ -8,194 +8,149 @@ Official docs are the reference dictionary; this project distills scattered API 
 
 https://github.com/user-attachments/assets/34fb1c60-a76d-410a-a55a-bcb2cbed4679
 
-## What Are Skills?
-
-Kiro skills are structured knowledge files (SKILL.md) that teach AI assistants domain-specific expertise. When installed in your workspace, Kiro automatically uses these skills to provide accurate, context-aware guidance for API migration tasks.
-
 ## Available Skills
 
 These skills cover three key aspects of API integration:
 
-### a. Unified API Migration
-
-Help developers migrate from legacy APIs (SP v3, SB v4) to the Unified API (`/adsApi/v1/`).
-
-| Skill | Description | Use When |
-|-------|-------------|----------|
-| `unified-api-migration-guide` | High-level migration assessment and planning | Starting a migration, assessing scope |
-| `unified-sp-migration` | SP v3 → Unified API field-level mapping | Migrating Sponsored Products code |
-| `unified-sb-migration` | SB v4 → Unified API field-level mapping | Migrating Sponsored Brands code |
-
-### b. New Ads API Adoption
-
-Help developers integrate new Amazon Ads API features and ad formats.
-
-| Skill | Description | Use When |
-|-------|-------------|----------|
-| `amazon-ads-sb-collections` | SBC ad format integration guide | Building new SBC campaigns or migrating from Product Collections |
-| `amazon-ads-spglobal` | SP Global Campaigns integration guide | Managing SP campaigns across multiple marketplaces simultaneously |
-
-### c. CLI Generation for Testing
-
-Help developers generate and validate API requests.
-
-| Skill | Description | Use When |
-|-------|-------------|----------|
-| `unified-api-cli-testing` | Generate curl commands and test scripts from OpenAPI specs | Testing endpoints, validating payloads |
+| Category | Skill | Use When |
+|----------|-------|----------|
+| **Migration** | `unified-api-migration-guide` | Assessing migration scope from SP v3 / SB v4 |
+| **Migration** | `unified-sp-migration` | Migrating Sponsored Products to Unified API |
+| **Migration** | `unified-sb-migration` | Migrating Sponsored Brands to Unified API |
+| **New API Adoption** | `amazon-ads-sb-collections` | Building SB Collections campaigns |
+| **New API Adoption** | `amazon-ads-spglobal` | Managing SP campaigns across multiple marketplaces |
+| **CLI Testing** | `unified-api-cli-testing` | Generating curl commands and test scripts |
 
 ## Quick Start
 
-### Option 1: Install to Kiro CLI project (`.kiro/skills/`)
+### Prerequisites
+
+1. Install [Kiro CLI](https://kiro.dev):
+   ```bash
+   brew install kiro-cli
+   ```
+   Or download from [kiro.dev/downloads](https://kiro.dev/downloads).
+
+2. Verify:
+   ```bash
+   kiro-cli --version
+   ```
+
+### Install & Use
 
 ```bash
-# Clone and install into your project
-git clone https://github.com/YOUR_USER/amazon-ads-api-skills.git
+# Clone this repo
+git clone https://github.com/wjwwwww/amazon-ads-api-skills.git
 cd amazon-ads-api-skills
+
+# Install skills + agent into your project
 ./install.sh /path/to/your/project
+
+# Start using
+cd /path/to/your/project
+kiro-cli chat --agent ads-api-migration-assistant
 ```
 
-Skills are installed to `/path/to/your/project/.kiro/skills/` and automatically loaded when you run `kiro` in that project directory.
+This installs skills (to `.kiro/skills/`) and the migration agent (to `.kiro/agents/`).
 
-### Option 2: Install a single skill
+### Or install a single skill
 
 ```bash
-# Copy just the skill you need
 mkdir -p /path/to/your/project/.kiro/skills
 cp -r skills/unified-sp-migration /path/to/your/project/.kiro/skills/
 ```
 
-### Option 3: Add to a custom AI agent / MCP agent
+### Verify it works
 
-If you are building or configuring a custom agent (e.g., Amazon Q, Cursor, Cline, or other LLM-based agents), you can include the SKILL.md content as part of the agent's system prompt or context:
+After installation, try these questions:
 
-```python
-# Example: Load skill as context for your agent
-with open("skills/unified-sp-migration/SKILL.md", "r") as f:
-    skill_content = f.read()
-
-system_prompt = f"""
-You are an Amazon Ads API migration assistant.
-
-{skill_content}
-"""
-```
-
-Or reference it in your agent configuration file:
-
-```yaml
-# Example: agent config (varies by platform)
-agent:
-  name: ads-api-migration-helper
-  context_files:
-    - skills/unified-api-migration-guide/SKILL.md
-    - skills/unified-sp-migration/SKILL.md
-    - skills/unified-sb-migration/SKILL.md
-```
-
-### Verify installation
-
-After installation, test with these questions:
-
-**Question 1** (migration scope):
 > "I want to migrate from SP v3. Which endpoints have equivalents in adsApi/v1?"
 
-Expected: The agent should list the full endpoint mapping table (campaigns, ad groups, product ads, keywords → targets, negative keywords → targets with negative=true, etc.) and clearly indicate which v3 endpoints do NOT have Unified API equivalents (budget rules, recommendations, etc.)
+> "Generate a curl command to create an SP Global campaign across US, UK, and DE"
 
-**Question 2** (targeting type differentiation):
-> "Unable to distinguish between different targeting types (e.g., ASIN exact, broad, category, etc.) in ads API V1"
+> "How do I create a Sponsored Brands Collection ad?"
 
-Expected: The agent should explain the Unified API uses `targetType` + `matchType` instead of expression format, and provide the mapping:
-- `targetType: "PRODUCT"` + `matchType: "PRODUCT_EXACT"` = ASIN exact targeting
-- `targetType: "PRODUCT"` + `matchType: "PRODUCT_SIMILAR"` = ASIN expanded targeting
-- `targetType: "PRODUCT_CATEGORY"` = Category targeting
+## How It Works
 
-**Question 3** (API CLI Generation):
-> "Generate a curl command to create an SP campaign"
-Expected:  The agent should return curl command to create an SP campaign using adsapi/v1 based on API Spec. 
+The agent uses a two-layer knowledge system:
+
+```
+User asks question
+        │
+        ▼
+┌─────────────────┐
+│  SKILL.md files │ ← Primary (loaded as context)
+│  (guides, maps) │
+└────────┬────────┘
+         │ Need more detail?
+         ▼
+┌─────────────────────────────┐
+│  api-specs/*.json           │ ← Fallback (searched on demand)
+│  (full OpenAPI schemas)     │
+└─────────────────────────────┘
+```
+
+Skills provide migration guides, endpoint mappings, and code examples. When the agent needs precise field types, enum values, or schema details, it automatically searches the OpenAPI spec files.
 
 ## API Spec Sync
 
-The migration skills reference the Amazon Ads OpenAPI specifications. Since these specs change frequently, we include a sync tool to detect changes that may affect the skills.
-
-### Pull latest specs and check for changes
+The specs change frequently. Keep them up-to-date:
 
 ```bash
 ./scripts/sync-api-specs.sh
 ```
 
-### CI mode (for GitHub Actions)
+This downloads the latest specs from Amazon's CDN, compares with previous versions, and reports changes that may affect skills.
+
+For CI integration, use `--check` mode (exits with code 1 if specs changed):
 
 ```bash
-# Exits with code 1 if specs have changed (useful in CI pipelines)
 ./scripts/sync-api-specs.sh --check
 ```
-
-### What it does
-
-1. Downloads the latest OpenAPI specs from Amazon's CDN:
-   - `unified-api-sp.json` — Sponsored Products Unified API
-   - `unified-api-sb.json` — Sponsored Brands Unified API
-2. Pretty-prints JSON for stable diffing
-3. Compares with previous versions
-4. Reports: new/removed endpoints, schema changes
-5. Flags which skills need review
 
 ## Project Structure
 
 ```
 amazon-ads-api-skills/
-├── .kiro/
-│   └── agents/
-│       └── ads-api-migration-assistant.json  ← Agent config with API Spec Fallback
-├── skills/                                   ← Skill source files
-│   ├── unified-api-migration-guide/
-│   │   └── SKILL.md
-│   ├── unified-sp-migration/
-│   │   └── SKILL.md
-│   ├── unified-sb-migration/
-│   │   └── SKILL.md
-│   ├── amazon-ads-sb-collections/
-│   │   └── SKILL.md
-│   ├── amazon-ads-spglobal/
-│   │   └── SKILL.md
-│   ├── unified-api-cli-testing/
-│   │   └── SKILL.md
-│   └── update-migration-skills/
-│       └── SKILL.md                          ← Maintenance skill for updating skills from spec diffs
-├── api-specs/                                ← OpenAPI specs (source of truth)
-│   ├── unified-api-sp.json                   ← Sponsored Products Unified API
-│   ├── unified-api-sb.json                   ← Sponsored Brands Unified API
-│   ├── unified-api-spglobal.json             ← SP Global Campaigns API
-│   ├── enums-unified-api.json                ← Extracted enum value mappings
-│   └── diff/                                 ← Generated diffs after sync
-│       ├── unified-api-sp.changes.md
-│       ├── unified-api-sp.old.json
-│       └── unified-api-sp.new.json
-├── scripts/
-│   ├── sync-api-specs.sh                     ← Download & diff latest specs
-│   ├── extract-enums.sh                      ← Extract enum values from docs
-│   └── fetch-enums-page.py                   ← Helper for enum extraction
-├── docs/
-├── examples/
-├── install.sh                                ← One-command installer (skills + agent)
-├── skills.json                               ← Machine-readable skill manifest
-├── CONTRIBUTING.md
-├── LICENSE
-└── README.md                                 ← You are here
+├── .kiro/agents/                    ← Agent config (with API Spec Fallback)
+├── skills/                          ← Skill source files (SKILL.md each)
+├── api-specs/                       ← OpenAPI specs (auto-synced)
+│   ├── unified-api-sp.json
+│   ├── unified-api-sb.json
+│   ├── unified-api-spglobal.json
+│   └── enums-unified-api.json
+├── scripts/                         ← Sync & maintenance tools
+├── install.sh                       ← One-command installer
+├── skills.json                      ← Machine-readable manifest
+└── README.md
+```
+
+## Using with Other AI Tools
+
+You can also use the SKILL.md files with non-Kiro AI tools:
+
+```python
+# Load as context for any LLM agent
+with open("skills/unified-sp-migration/SKILL.md", "r") as f:
+    skill_content = f.read()
+```
+
+```yaml
+# Or reference in agent config (Cursor, Cline, etc.)
+context_files:
+  - skills/unified-sp-migration/SKILL.md
+  - skills/unified-sb-migration/SKILL.md
 ```
 
 ## Requirements
 
-- [Kiro CLI](https://kiro.dev) or Kiro IDE extension
+- [Kiro CLI](https://kiro.dev) (or any AI coding assistant that supports context files)
 - `curl`, `jq` (for spec sync script)
-- bash 4+ (for associative arrays in sync script)
+- bash 4+
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
-- Adding new skills
-- Updating existing skills when API specs change
-- Skill template and quality standards
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

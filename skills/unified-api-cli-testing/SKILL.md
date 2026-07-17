@@ -7,7 +7,7 @@ description: "Use when a developer needs to generate curl commands, CLI test scr
 
 ## 1. Overview
 
-This skill helps developers generate ready-to-use `curl` commands and test scripts for the Amazon Ads Unified API. It uses the OpenAPI specifications (`api-specs/unified-api-sp.json` and `api-specs/unified-api-sb.json`) as the source of truth for:
+This skill helps developers generate ready-to-use `curl` commands and test scripts for the Amazon Ads Unified API. It uses the OpenAPI specifications (`api-specs/unified-api-sp.json`, `api-specs/unified-api-sb.json`, and `api-specs/unified-api-spglobal.json`) as the source of truth for:
 
 - Available endpoints and HTTP methods
 - Required/optional request fields
@@ -18,10 +18,12 @@ This skill helps developers generate ready-to-use `curl` commands and test scrip
 ### When to Use This Skill
 
 - "Generate a curl command to create a SP campaign"
+- "Generate a curl command to create a SP Global campaign across US, UK, and DE"
 - "How do I test the /adsApi/v1/query/targets endpoint?"
 - "Give me a script to test all CRUD operations for ad groups"
 - "What headers do I need for Unified API requests?"
 - "Generate test payloads for SB collection ads"
+- "Generate a curl to create a global ad with different ASINs per marketplace"
 
 ---
 
@@ -39,6 +41,24 @@ All Unified API requests require these headers:
 -H "Amazon-Ads-AccountId: ${ACCOUNT_ID}" \
 -H "Amazon-Advertising-API-Scope: ${PROFILE_ID}"
 ```
+
+### SP Global Campaign Headers
+
+For SP Global campaigns, headers differ from SP/SB:
+
+```bash
+# SPG Required headers — AccountId is REQUIRED, Scope is NOT used
+-H "Authorization: Bearer ${ACCESS_TOKEN}" \
+-H "Amazon-Ads-ClientId: ${CLIENT_ID}" \
+-H "Amazon-Ads-AccountId: ${ACCOUNT_ID}" \
+-H "Content-Type: application/json"
+# Do NOT include Amazon-Advertising-API-Scope for SPG
+```
+
+| Header | SP / SB | SP Global |
+|--------|---------|-----------|
+| `Amazon-Ads-AccountId` | Optional | **Required** |
+| `Amazon-Advertising-API-Scope` | Optional | **Not used** |
 
 ### Environment Variable Setup
 
@@ -145,6 +165,85 @@ curl -s -X POST "${ADS_API_BASE}/adsApi/v1/create/campaigns" \
   }' | jq .
 ```
 
+#### Create Campaign (SP Global — Multi-Marketplace)
+
+```bash
+curl -s -X POST "${ADS_API_BASE}/adsApi/v1/create/campaigns" \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -H "Amazon-Ads-ClientId: ${CLIENT_ID}" \
+  -H "Amazon-Ads-AccountId: ${ACCOUNT_ID}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "campaigns": [
+      {
+        "adProduct": "SPONSORED_PRODUCTS",
+        "name": "TEST-SPG-Global-Campaign-'"$(date +%s)"'",
+        "state": "PAUSED",
+        "marketplaceScope": "GLOBAL",
+        "marketplaces": ["US", "GB", "DE"],
+        "startDateTime": "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'",
+        "autoCreationSettings": { "autoCreateTargets": true },
+        "budgets": [
+          {
+            "budgetType": "MONETARY",
+            "budgetValue": {
+              "monetaryBudgetValue": {
+                "marketplaceSettings": [
+                  {"marketplace": "US", "monetaryBudget": {"value": 50.00}},
+                  {"marketplace": "GB", "monetaryBudget": {"value": 40.00}},
+                  {"marketplace": "DE", "monetaryBudget": {"value": 45.00}}
+                ]
+              }
+            },
+            "recurrenceTimePeriod": "DAILY"
+          }
+        ],
+        "optimizations": {
+          "bidSettings": {
+            "bidStrategy": "SALES_UP_AND_DOWN",
+            "bidAdjustments": {
+              "placementBidAdjustments": [
+                {"placement": "TOP_OF_SEARCH", "percentage": 50}
+              ]
+            }
+          }
+        },
+        "marketplaceConfigurations": [
+          {
+            "marketplace": "DE",
+            "overrides": {
+              "name": "TEST-SPG-Elektronik-'"$(date +%s)"'",
+              "state": "PAUSED"
+            }
+          }
+        ]
+      }
+    ]
+  }' | jq .
+```
+
+#### Query Campaigns (SP Global — filter by GLOBAL scope)
+
+```bash
+curl -s -X POST "${ADS_API_BASE}/adsApi/v1/query/campaigns" \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -H "Amazon-Ads-ClientId: ${CLIENT_ID}" \
+  -H "Amazon-Ads-AccountId: ${ACCOUNT_ID}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "adProductFilter": {
+      "include": ["SPONSORED_PRODUCTS"]
+    },
+    "marketplaceScopeFilter": {
+      "include": ["GLOBAL"]
+    },
+    "stateFilter": {
+      "include": ["ENABLED", "PAUSED"]
+    },
+    "maxResults": 10
+  }' | jq .
+```
+
 #### Query Campaigns
 
 ```bash
@@ -219,6 +318,35 @@ curl -s -X POST "${ADS_API_BASE}/adsApi/v1/create/adGroups" \
   }' | jq .
 ```
 
+#### Create Ad Group (SP Global — Per-Marketplace Bids)
+
+```bash
+curl -s -X POST "${ADS_API_BASE}/adsApi/v1/create/adGroups" \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -H "Amazon-Ads-ClientId: ${CLIENT_ID}" \
+  -H "Amazon-Ads-AccountId: ${ACCOUNT_ID}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "adGroups": [
+      {
+        "adProduct": "SPONSORED_PRODUCTS",
+        "marketplaceScope": "GLOBAL",
+        "marketplaces": ["US", "GB", "DE"],
+        "campaignId": "'"${CAMPAIGN_ID}"'",
+        "name": "TEST-SPG-AdGroup-'"$(date +%s)"'",
+        "state": "ENABLED",
+        "bid": {
+          "marketplaceSettings": [
+            {"marketplace": "US", "currencyCode": "USD", "defaultBid": 1.50},
+            {"marketplace": "GB", "currencyCode": "GBP", "defaultBid": 1.20},
+            {"marketplace": "DE", "currencyCode": "EUR", "defaultBid": 1.30}
+          ]
+        }
+      }
+    ]
+  }' | jq .
+```
+
 #### Query Ad Groups
 
 ```bash
@@ -261,6 +389,42 @@ curl -s -X POST "${ADS_API_BASE}/adsApi/v1/create/ads" \
               "advertisedProduct": {
                 "productId": "'"${ASIN}"'",
                 "productIdType": "ASIN"
+              }
+            }
+          }
+        }
+      }
+    ]
+  }' | jq .
+```
+
+#### Create Product Ad (SP Global — Per-Marketplace ASINs)
+
+```bash
+curl -s -X POST "${ADS_API_BASE}/adsApi/v1/create/ads" \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -H "Amazon-Ads-ClientId: ${CLIENT_ID}" \
+  -H "Amazon-Ads-AccountId: ${ACCOUNT_ID}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ads": [
+      {
+        "adGroupId": "'"${AD_GROUP_ID}"'",
+        "adProduct": "SPONSORED_PRODUCTS",
+        "adType": "PRODUCT_AD",
+        "marketplaceScope": "GLOBAL",
+        "marketplaces": ["US", "GB", "DE"],
+        "state": "ENABLED",
+        "creative": {
+          "productCreative": {
+            "productCreativeSettings": {
+              "advertisedProduct": {
+                "productIdType": "ASIN",
+                "marketplaceSettings": [
+                  {"marketplace": "US", "productId": "B0US_ASIN_1"},
+                  {"marketplace": "GB", "productId": "B0UK_ASIN_1"},
+                  {"marketplace": "DE", "productId": "B0DE_ASIN_1"}
+                ]
               }
             }
           }
@@ -386,6 +550,55 @@ curl -s -X POST "${ADS_API_BASE}/adsApi/v1/create/targets" \
             "matchType": "BROAD"
           }
         }
+      }
+    ]
+  }' | jq .
+```
+
+#### Create Keyword Target (SP Global — Per-Marketplace Keyword Override)
+
+```bash
+curl -s -X POST "${ADS_API_BASE}/adsApi/v1/create/targets" \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -H "Amazon-Ads-ClientId: ${CLIENT_ID}" \
+  -H "Amazon-Ads-AccountId: ${ACCOUNT_ID}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "targets": [
+      {
+        "adGroupId": "'"${AD_GROUP_ID}"'",
+        "adProduct": "SPONSORED_PRODUCTS",
+        "marketplaceScope": "GLOBAL",
+        "marketplaces": ["US", "GB", "DE"],
+        "state": "ENABLED",
+        "negative": false,
+        "targetType": "KEYWORD",
+        "bid": {
+          "marketplaceSettings": [
+            {"marketplace": "US", "currencyCode": "USD", "bid": 2.00},
+            {"marketplace": "GB", "currencyCode": "GBP", "bid": 1.60},
+            {"marketplace": "DE", "currencyCode": "EUR", "bid": 1.80}
+          ]
+        },
+        "targetDetails": {
+          "keywordTarget": {
+            "keyword": "phone case",
+            "matchType": "BROAD"
+          }
+        },
+        "marketplaceConfigurations": [
+          {
+            "marketplace": "DE",
+            "overrides": {
+              "targetDetails": {
+                "keywordTarget": {
+                  "keyword": "Handyhülle",
+                  "matchType": "BROAD"
+                }
+              }
+            }
+          }
+        ]
       }
     ]
   }' | jq .
@@ -595,12 +808,17 @@ echo -e "\n\033[1;32m=== All tests passed ===\033[0m"
 
 To generate curl commands for any endpoint in the spec:
 
-1. **Find the endpoint** in `api-specs/unified-api-sp.json` or `api-specs/unified-api-sb.json`
+1. **Find the endpoint** in `api-specs/unified-api-sp.json`, `api-specs/unified-api-sb.json`, or `api-specs/unified-api-spglobal.json`
 2. **Extract the request schema** from `requestBody.content.application/json.schema.$ref`
 3. **Resolve the schema** from `components.schemas.{SchemaName}`
 4. **Identify required fields** from the `required` array
 5. **Map enum values** from field definitions or from `api-specs/enums-unified-api.json`
 6. **Generate minimal payload** with only required fields + valid enum values
+
+**Spec selection guide:**
+- SP single-marketplace campaigns → `unified-api-sp.json` (schemas prefixed `SP*`)
+- SP Global multi-marketplace campaigns → `unified-api-spglobal.json` (schemas prefixed `SPGlobal*`)
+- SB campaigns → `unified-api-sb.json` (schemas prefixed `SB*`)
 
 ### 5.3 Quick Reference: jq Commands for Spec Exploration
 
