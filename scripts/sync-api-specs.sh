@@ -21,13 +21,14 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SPECS_DIR="$PROJECT_ROOT/api-specs"
 
 # Spec definitions (parallel arrays for bash 3.x compatibility)
-SPEC_NAMES=("unified-api-sp" "unified-api-sb" "unified-api-spglobal")
+SPEC_NAMES=("unified-api-sp" "unified-api-sb" "unified-api-spglobal" "unified-api-dsp")
 SPEC_URLS=(
   "https://d1y2lf8k3vrkfu.cloudfront.net/openapi/en-us/dest/AmazonAdsAPISPMerged_prod_3p.json"
   "https://d1y2lf8k3vrkfu.cloudfront.net/openapi/en-us/dest/AmazonAdsAPISBMerged_prod_3p.json"
   "https://d1y2lf8k3vrkfu.cloudfront.net/openapi/en-us/dest/AmazonAdsAPISPGLOBALMerged_prod_3p.json"
+  "https://d1y2lf8k3vrkfu.cloudfront.net/openapi/en-us/dest/AmazonAdsAPIDSPMerged_prod_3p.json"
 )
-SPEC_SKILLS=("unified-sp-migration" "unified-sb-migration" "amazon-ads-spglobal")
+SPEC_SKILLS=("unified-sp-migration" "unified-sb-migration" "amazon-ads-spglobal" "unified-dsp-cm-migration")
 
 # --- Colors ------------------------------------------------------------------
 

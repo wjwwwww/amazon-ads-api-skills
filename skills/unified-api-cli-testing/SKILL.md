@@ -7,7 +7,7 @@ description: "Use when a developer needs to generate curl commands, CLI test scr
 
 ## 1. Overview
 
-This skill helps developers generate ready-to-use `curl` commands and test scripts for the Amazon Ads Unified API. It uses the OpenAPI specifications (`api-specs/unified-api-sp.json`, `api-specs/unified-api-sb.json`, and `api-specs/unified-api-spglobal.json`) as the source of truth for:
+This skill helps developers generate ready-to-use `curl` commands and test scripts for the Amazon Ads Unified API. It uses the OpenAPI specifications (`api-specs/unified-api-sp.json`, `api-specs/unified-api-sb.json`, `api-specs/unified-api-spglobal.json`, and `api-specs/unified-api-dsp.json`) as the source of truth for:
 
 - Available endpoints and HTTP methods
 - Required/optional request fields
@@ -19,6 +19,7 @@ This skill helps developers generate ready-to-use `curl` commands and test scrip
 
 - "Generate a curl command to create a SP campaign"
 - "Generate a curl command to create a SP Global campaign across US, UK, and DE"
+- "Generate a curl command to create a DSP campaign"
 - "How do I test the /adsApi/v1/query/targets endpoint?"
 - "Give me a script to test all CRUD operations for ad groups"
 - "What headers do I need for Unified API requests?"
@@ -236,6 +237,73 @@ curl -s -X POST "${ADS_API_BASE}/adsApi/v1/query/campaigns" \
     },
     "marketplaceScopeFilter": {
       "include": ["GLOBAL"]
+    },
+    "stateFilter": {
+      "include": ["ENABLED", "PAUSED"]
+    },
+    "maxResults": 10
+  }' | jq .
+```
+
+#### Create Campaign (DSP)
+
+```bash
+curl -s -X POST "${ADS_API_BASE}/adsApi/v1/create/campaigns" \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -H "Amazon-Ads-ClientId: ${CLIENT_ID}" \
+  -H "Amazon-Ads-AccountId: ${ACCOUNT_ID}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "campaigns": [
+      {
+        "adProduct": "AMAZON_DSP",
+        "name": "TEST-DSP-Campaign-'"$(date +%s)"'",
+        "state": "PAUSED",
+        "countries": ["US"],
+        "flights": [
+          {
+            "budget": {
+              "budgetType": "MONETARY",
+              "budgetValue": {
+                "monetaryBudgetValue": {
+                  "monetaryBudget": { "value": 10000.00 }
+                }
+              }
+            },
+            "startDateTime": "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'",
+            "endDateTime": "'"$(date -u -v+30d +%Y-%m-%dT%H:%M:%SZ)"'"
+          }
+        ],
+        "frequencies": [
+          {
+            "eventMaxCount": 5,
+            "timeUnit": "DAYS",
+            "timeCount": 1,
+            "frequencyTargetingSetting": "IMPRESSION"
+          }
+        ],
+        "optimizations": {
+          "bidSettings": { "bidStrategy": "SPEND_BUDGET_IN_FULL" },
+          "goalSettings": { "kpi": "CLICK_THROUGH_RATE" }
+        }
+      }
+    ]
+  }' | jq .
+```
+
+> ⚠️ DSP campaigns must be created in `PAUSED` state. Update to `ENABLED` after configuring ad groups and targets.
+
+#### Query Campaigns (DSP)
+
+```bash
+curl -s -X POST "${ADS_API_BASE}/adsApi/v1/query/campaigns" \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
+  -H "Amazon-Ads-ClientId: ${CLIENT_ID}" \
+  -H "Amazon-Ads-AccountId: ${ACCOUNT_ID}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "adProductFilter": {
+      "include": ["AMAZON_DSP"]
     },
     "stateFilter": {
       "include": ["ENABLED", "PAUSED"]
@@ -808,7 +876,7 @@ echo -e "\n\033[1;32m=== All tests passed ===\033[0m"
 
 To generate curl commands for any endpoint in the spec:
 
-1. **Find the endpoint** in `api-specs/unified-api-sp.json`, `api-specs/unified-api-sb.json`, or `api-specs/unified-api-spglobal.json`
+1. **Find the endpoint** in `api-specs/unified-api-sp.json`, `api-specs/unified-api-sb.json`, `api-specs/unified-api-spglobal.json`, or `api-specs/unified-api-dsp.json`
 2. **Extract the request schema** from `requestBody.content.application/json.schema.$ref`
 3. **Resolve the schema** from `components.schemas.{SchemaName}`
 4. **Identify required fields** from the `required` array
@@ -819,6 +887,7 @@ To generate curl commands for any endpoint in the spec:
 - SP single-marketplace campaigns → `unified-api-sp.json` (schemas prefixed `SP*`)
 - SP Global multi-marketplace campaigns → `unified-api-spglobal.json` (schemas prefixed `SPGlobal*`)
 - SB campaigns → `unified-api-sb.json` (schemas prefixed `SB*`)
+- DSP campaigns → `unified-api-dsp.json` (schemas prefixed `DSP*`)
 
 ### 5.3 Quick Reference: jq Commands for Spec Exploration
 

@@ -54,7 +54,7 @@ declare -a SKILLS_TO_INSTALL=()
 
 case "$FILTER" in
   all)
-    SKILLS_TO_INSTALL=(unified-api-migration-guide unified-sp-migration unified-sb-migration amazon-ads-sb-collections amazon-ads-spglobal unified-api-cli-testing update-migration-skills)
+    SKILLS_TO_INSTALL=(unified-api-migration-guide unified-sp-migration unified-sb-migration amazon-ads-sb-collections amazon-ads-spglobal unified-dsp-cm-migration unified-api-cli-testing update-migration-skills)
     ;;
   sp)
     SKILLS_TO_INSTALL=(unified-api-migration-guide unified-sp-migration amazon-ads-spglobal unified-api-cli-testing update-migration-skills)
@@ -106,7 +106,7 @@ fi
 API_SPECS_DST="$TARGET_DIR/api-specs"
 mkdir -p "$API_SPECS_DST"
 
-SPEC_FILES=("unified-api-sp.json" "unified-api-sb.json" "unified-api-spglobal.json" "enums-unified-api.json")
+SPEC_FILES=("unified-api-sp.json" "unified-api-sb.json" "unified-api-spglobal.json" "unified-api-dsp.json" "enums-unified-api.json")
 SPECS_COPIED=0
 for spec in "${SPEC_FILES[@]}"; do
   if [[ -f "$SCRIPT_DIR/api-specs/$spec" ]]; then

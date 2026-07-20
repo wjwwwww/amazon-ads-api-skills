@@ -14,13 +14,14 @@ These skills cover three key aspects of API integration:
 
 ### a. Unified API Migration
 
-Help developers migrate from legacy APIs (SP v3, SB v4) to the Unified API (`/adsApi/v1/`).
+Help developers migrate from legacy APIs (SP v3, SB v4, DSP v1) to the Unified API (`/adsApi/v1/`).
 
 | Skill | Description | Use When |
 |-------|-------------|----------|
 | `unified-api-migration-guide` | High-level migration assessment and planning | Starting a migration, assessing scope |
 | `unified-sp-migration` | SP v3 → Unified API field-level mapping | Migrating Sponsored Products code |
 | `unified-sb-migration` | SB v4 → Unified API field-level mapping | Migrating Sponsored Brands code |
+| `unified-dsp-cm-migration` | DSP legacy → Unified API campaign management | Migrating DSP campaigns, ad groups, creatives, targets |
 
 ### b. New Ads API Adoption
 
@@ -143,6 +144,7 @@ amazon-ads-api-skills/
 │   ├── unified-api-sp.json
 │   ├── unified-api-sb.json
 │   ├── unified-api-spglobal.json
+│   ├── unified-api-dsp.json
 │   └── enums-unified-api.json
 ├── scripts/                         ← Sync & maintenance tools
 ├── install.sh                       ← One-command installer

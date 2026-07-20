@@ -56,6 +56,15 @@
       "dependencies": []
     },
     {
+      "name": "unified-dsp-cm-migration",
+      "path": "skills/unified-dsp-cm-migration/SKILL.md",
+      "description": "DSP Campaign Management migration guide from legacy /dsp/v1/ APIs to the Unified API /adsApi/v1/",
+      "tags": ["migration", "dsp", "campaign-management"],
+      "apis": ["DSP Legacy", "Unified API v1"],
+      "specFile": "api-specs/unified-api-dsp.json",
+      "dependencies": []
+    },
+    {
       "name": "update-migration-skills",
       "path": "skills/update-migration-skills/SKILL.md",
       "description": "Reads API spec diffs from api-specs/diff/ and updates migration SKILL.md files with new endpoints, fields, and enum changes",
@@ -82,6 +91,12 @@
       "url": "https://d1y2lf8k3vrkfu.cloudfront.net/openapi/en-us/dest/AmazonAdsAPISPGLOBALMerged_prod_3p.json",
       "localPath": "api-specs/unified-api-spglobal.json",
       "affectsSkills": ["amazon-ads-spglobal"]
+    },
+    {
+      "name": "unified-api-dsp",
+      "url": "https://d1y2lf8k3vrkfu.cloudfront.net/openapi/en-us/dest/AmazonAdsAPIDSPMerged_prod_3p.json",
+      "localPath": "api-specs/unified-api-dsp.json",
+      "affectsSkills": ["unified-dsp-cm-migration"]
     }
   ]
 }
