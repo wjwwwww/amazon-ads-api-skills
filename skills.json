@@ -65,6 +65,15 @@
       "dependencies": []
     },
     {
+      "name": "amazon-ads-dsp-creative-management",
+      "path": "skills/amazon-ads-dsp-creative-management/SKILL.md",
+      "description": "DSP creative management guide for creating and managing ads, choosing creative types by inventory, and linking ads to ad groups via associations",
+      "tags": ["integration", "dsp", "creative", "ads"],
+      "apis": ["Unified API v1"],
+      "specFile": "api-specs/unified-api-dsp.json",
+      "dependencies": []
+    },
+    {
       "name": "update-migration-skills",
       "path": "skills/update-migration-skills/SKILL.md",
       "description": "Reads API spec diffs from api-specs/diff/ and updates migration SKILL.md files with new endpoints, fields, and enum changes",

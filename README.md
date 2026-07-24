@@ -31,6 +31,7 @@ Help developers integrate new Amazon Ads API features and ad formats.
 |-------|-------------|----------|
 | `amazon-ads-sb-collections` | SBC ad format integration guide | Building new SBC campaigns or migrating from Product Collections |
 | `amazon-ads-spglobal` | SP Global Campaigns integration guide | Managing SP campaigns across multiple marketplaces simultaneously |
+| `amazon-ads-dsp-creative-management` | DSP creative management guide | Creating and managing DSP ads, choosing creative types, ad associations |
 
 ### c. CLI Generation for Testing
 

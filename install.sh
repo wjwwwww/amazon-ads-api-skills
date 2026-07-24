@@ -54,7 +54,7 @@ declare -a SKILLS_TO_INSTALL=()
 
 case "$FILTER" in
   all)
-    SKILLS_TO_INSTALL=(unified-api-migration-guide unified-sp-migration unified-sb-migration amazon-ads-sb-collections amazon-ads-spglobal unified-dsp-cm-migration unified-api-cli-testing update-migration-skills)
+    SKILLS_TO_INSTALL=(unified-api-migration-guide unified-sp-migration unified-sb-migration amazon-ads-sb-collections amazon-ads-spglobal unified-dsp-cm-migration amazon-ads-dsp-creative-management unified-api-cli-testing update-migration-skills)
     ;;
   sp)
     SKILLS_TO_INSTALL=(unified-api-migration-guide unified-sp-migration amazon-ads-spglobal unified-api-cli-testing update-migration-skills)
